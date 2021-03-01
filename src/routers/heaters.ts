@@ -5,6 +5,17 @@ const { settingsService } = require('../services');
 
 export const router = new Router();
 
+type Heater = {
+  id: number;
+  pin: number;
+  name: string;
+  plug: number;
+  description: string;
+  status: 0 | 1;
+}
+
+type Heaters = { [key: string]: Heater };
+
 const paramsWhitelist = new Set([
   'pin',
   'name',
@@ -18,7 +29,7 @@ router.get('/ping', ctx => {
 })
 
 router.get('/', async ctx => {
-  const heaters = await settingsService.readFromSettings('heaters');
+  const heaters: Heaters = await settingsService.readFromSettings('heaters');
 
   ctx.body = heaters;
 });
@@ -30,11 +41,9 @@ router.post('/', async ctx => {
     plug = 0,
     description = '',
     status = 0,
-    level = 100,
-    dimmable = false,
   } = ctx.request.body;
 
-  const heaters = await settingsService.readFromSettings('heaters');
+  const heaters: Heaters = await settingsService.readFromSettings('heaters');
   const id = uuid();
 
   const newHeaters = {
@@ -46,8 +55,6 @@ router.post('/', async ctx => {
       plug,
       description,
       status,
-      level,
-      dimmable,
     }
   };
 
@@ -60,18 +67,18 @@ router.put('/:heaterId/', async ctx => {
   const { heaterId } = ctx.params;
 
   const data = ctx.request.body;
-  const heaters = await settingsService.readFromSettings('heaters');
-  const lightToUpdate = heaters[heaterId];
+  const heaters: Heaters = await settingsService.readFromSettings('heaters');
+  const heaterToUpdate = heaters[heaterId];
 
   Object.entries(data).forEach(([key, value]) => {
     if (paramsWhitelist.has(key)) {
-      lightToUpdate[key] = value;
+      heaterToUpdate[key] = value;
     }
   })
 
   const updatedheaters = {
     ...heaters,
-    [lightToUpdate.id]: lightToUpdate,
+    [heaterToUpdate.id]: heaterToUpdate,
   };
 
   await settingsService.writeToSettings('heaters', updatedheaters);

@@ -5,6 +5,19 @@ const { settingsService } = require('../services');
 
 export const router = new Router();
 
+type Light = {
+  id: number;
+  pin: number;
+  name: string;
+  plug: number;
+  description: string;
+  status: 0 | 1;
+  level: number;
+  dimmable: boolean;
+}
+
+type Lights = { [key: string]: Light };
+
 const paramsWhitelist = new Set([
   'pin',
   'name',
@@ -20,7 +33,7 @@ router.get('/ping', ctx => {
 })
 
 router.get('/', async ctx => {
-  const lights = await settingsService.readFromSettings('lights');
+  const lights: Lights = await settingsService.readFromSettings('lights');
 
   ctx.body = lights;
 });
@@ -36,9 +49,8 @@ router.post('/', async ctx => {
     dimmable = false,
   } = ctx.request.body;
 
-  const lights = await settingsService.readFromSettings('lights');
+  const lights: Lights = await settingsService.readFromSettings('lights');
   const id = uuid();
-
   const newLights = {
     ...lights,
     [id]: {
@@ -62,7 +74,7 @@ router.put('/:lightId/', async ctx => {
   const { lightId } = ctx.params;
 
   const data = ctx.request.body;
-  const lights = await settingsService.readFromSettings('lights');
+  const lights: Lights = await settingsService.readFromSettings('lights');
   const lightToUpdate = lights[lightId];
 
   Object.entries(data).forEach(([key, value]) => {
@@ -84,7 +96,7 @@ router.put('/:lightId/', async ctx => {
 router.delete('/:lightId/', async ctx => {
   const { lightId } = ctx.params;
 
-  const lights = await settingsService.readFromSettings('lights');
+  const lights: Lights = await settingsService.readFromSettings('lights');
 
   delete lights[lightId];
 
