@@ -11,7 +11,7 @@ type ServiceName = 'lights'
 
 type Data = any[] | {[key: string]: any}
 type WriteFileCallback = (err) => Promise<void>;
-type ReadFileCallback = () => Promise<Data>;
+type ReadFileCallback = (err, data?) => void;
 
 class SettingsService {
   async writeToSettings(
@@ -23,30 +23,29 @@ class SettingsService {
 
     return fs.writeFileSync(
       path.join(__dirname, `../../settings/${serviceName}.json`),
-      stringifiedData,
-      callback
-        ? callback
-        : (err => { if (err) throw err; })
+      stringifiedData
     );
   }
 
   async readFromSettings(
     serviceName: ServiceName,
-    callback?: WriteFileCallback
+    callback?: ReadFileCallback
   ) {
-    const data = await fs.readFileSync(
-      path.join(__dirname, `../../settings/${serviceName}.json`),
-      'utf8',
-      callback
-        ? callback
-        : (err, data) => {
-          if (err) throw err;
+    try {
+      const [err, data] = await fs.readFileSync(
+        path.join(__dirname, `../../settings/${serviceName}.json`),
+        'utf8'
+      );
 
-          return data;
-        }
-      )
+      if (callback) return callback(null, JSON.parse(data));
 
-    return JSON.parse(data);
+      return JSON.parse(data);
+    } catch (err) {
+      if (callback) return callback(err);
+      if (err.code === 'ENOENT') return {};
+
+      throw err;
+    }
   }
 }
 
