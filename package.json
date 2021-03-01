@@ -1,0 +1,20 @@
+{
+  "name": "aqua-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.ts"
+  },
+  "keywords": [],
+  "author": "Alex",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.11.0",
+    "koa-body": "^4.1.1",
+    "koa-router": "^8.0.8",
+    "lodash": "^4.17.15",
+    "path": "^0.12.7"
+  }
+}

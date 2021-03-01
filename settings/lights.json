@@ -1,0 +1,38 @@
+[
+  {
+    "pin": 1,
+    "name": "light",
+    "status": 0,
+    "level": 100,
+    "description": "white",
+    "plug": 0,
+    "dimmable": false
+  },
+  {
+    "pin": 2,
+    "name": "light",
+    "status": 2,
+    "level": 100,
+    "description": "blue",
+    "plug": 0,
+    "dimmable": false
+  },
+  {
+    "pin": 4,
+    "name": "light",
+    "plug": 3,
+    "description": "orange",
+    "status": 1,
+    "level": 50,
+    "dimmable": true
+  },
+  {
+    "pin": 5,
+    "name": "light",
+    "plug": 5,
+    "description": "red",
+    "status": 1,
+    "level": 100,
+    "dimmable": false
+  }
+]
