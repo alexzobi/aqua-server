@@ -1,6 +1,5 @@
 const Router = require('koa-router');
-const fs = require('fs');
-const path = require('path');
+const { settingsService } = require('../services');
 
 export const router = new Router();
 
@@ -9,20 +8,12 @@ router.get('/ping', ctx => {
 })
 
 router.get('/', async ctx => {
-  const lights = await fs.readFileSync(
-    path.join(__dirname, '../../settings/lights.json'),
-    'utf8',
-    (err, data) => {
-      if (err) throw err;
-
-      return JSON.parse(data);
-    }
-  );
+  const lights = await settingsService.readFromSettings('lights');
 
   ctx.body = lights;
 });
 
-router.post('/new', async ctx => {
+router.post('/', async ctx => {
   const {
     pin,
     name,
@@ -33,19 +24,10 @@ router.post('/new', async ctx => {
     dimmable = false,
   } = ctx.request.body;
 
-  const lights = await fs.readFileSync(
-    path.join(__dirname, '../../settings/lights.json'),
-    'utf8',
-    (err, data) => {
-      if (err) throw err;
+  const lights = await settingsService.readFromSettings('lights');
 
-      return data;
-    }
-  );
-
-  const jsonLights = JSON.parse(lights);
   const newLights = [
-    ...jsonLights,
+    ...lights,
     {
       pin,
       name,
@@ -57,14 +39,7 @@ router.post('/new', async ctx => {
     }
   ]
 
-  const data = JSON.stringify(newLights, null, 2);
-
-  await fs.writeFileSync(
-    path.join(__dirname, '../../settings/lights.json'),
-    data,
-    (err => { if (err) throw err; })
-  );
-
+  await settingsService.writeToSettings('lights', newLights);
 
   ctx.body = newLights;
 });

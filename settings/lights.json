@@ -34,5 +34,14 @@
     "status": 1,
     "level": 100,
     "dimmable": false
+  },
+  {
+    "pin": 6,
+    "name": "light",
+    "plug": 6,
+    "description": "green",
+    "status": 0,
+    "level": 100,
+    "dimmable": false
   }
 ]
