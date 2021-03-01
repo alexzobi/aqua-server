@@ -1,4 +1,7 @@
 const Router = require('koa-router');
+const { v4 } = require('uuid');
+const uuid = v4;
+
 const { settingsService } = require('../services');
 
 export const router = new Router();
@@ -25,10 +28,12 @@ router.post('/', async ctx => {
   } = ctx.request.body;
 
   const lights = await settingsService.readFromSettings('lights');
+  const id = uuid();
 
-  const newLights = [
+  const newLights = {
     ...lights,
-    {
+    [id]: {
+      id,
       pin,
       name,
       plug,
@@ -37,9 +42,41 @@ router.post('/', async ctx => {
       level,
       dimmable,
     }
-  ]
+  };
 
   await settingsService.writeToSettings('lights', newLights);
 
   ctx.body = newLights;
 });
+
+router.put('/:lightId/', async ctx => {
+  const { lightId } = ctx.params;
+  const paramsWhitelist = new Set([
+    'pin',
+    'name',
+    'plug',
+    'description',
+    'status',
+    'level',
+    'dimmable',
+  ]);
+
+  const data = ctx.request.body;
+  const lights = await settingsService.readFromSettings('lights');
+  const lightToUpdate = lights[lightId];
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (paramsWhitelist.has(key)) {
+      lightToUpdate[key] = value;
+    }
+  })
+
+  const updatedLights = {
+    ...lights,
+    [lightToUpdate.id]: lightToUpdate,
+  };
+
+  await settingsService.writeToSettings('lights', updatedLights);
+
+  ctx.body = updatedLights;
+})
