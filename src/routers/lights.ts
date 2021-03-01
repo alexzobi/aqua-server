@@ -1,10 +1,19 @@
 const Router = require('koa-router');
-const { v4 } = require('uuid');
-const uuid = v4;
+const { v4: uuid } = require('uuid');
 
 const { settingsService } = require('../services');
 
 export const router = new Router();
+
+const paramsWhitelist = new Set([
+  'pin',
+  'name',
+  'plug',
+  'description',
+  'status',
+  'level',
+  'dimmable',
+]);
 
 router.get('/ping', ctx => {
   ctx.body = 'hello world';
@@ -51,15 +60,6 @@ router.post('/', async ctx => {
 
 router.put('/:lightId/', async ctx => {
   const { lightId } = ctx.params;
-  const paramsWhitelist = new Set([
-    'pin',
-    'name',
-    'plug',
-    'description',
-    'status',
-    'level',
-    'dimmable',
-  ]);
 
   const data = ctx.request.body;
   const lights = await settingsService.readFromSettings('lights');
@@ -79,4 +79,16 @@ router.put('/:lightId/', async ctx => {
   await settingsService.writeToSettings('lights', updatedLights);
 
   ctx.body = updatedLights;
+})
+
+router.delete('/:lightId/', async ctx => {
+  const { lightId } = ctx.params;
+
+  const lights = await settingsService.readFromSettings('lights');
+
+  delete lights[lightId];
+
+  await settingsService.writeToSettings('lights', lights);
+
+  ctx.body = lights;
 })
